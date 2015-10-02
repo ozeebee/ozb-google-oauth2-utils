@@ -1,0 +1,87 @@
+= ozb-google-oauth2-utils
+:icons: font
+:source-highlighter: pygments
+:pygments-style: default
+:toc:
+//:toc-position: left
+:toclevels: 4
+
+Command-line utility to manage Google APIs authorization (OAuth2) tokens. +
+Useful to generate access/refresh tokens (for https://developers.google.com/identity/protocols/OAuth2InstalledApp[Installed Applications^]).
+
+== Features
+
+* generate access/refresh tokens
+* use a refresh token to generate a new access token
+
+== Requirements
+
+This has been implemented in Scala, so you need a Java Runtime environment 1.7+.
+
+== Installing
+
+I haven't published any binary so far because it has been used for personal purposes only. +
+Now, I could push a zip file onto some cloud file storage service if kindly asked ;).
+
+In the meantime, to run this tools, you need to build it and generate an executable script.
+
+He are the main steps:
+
+. clone this repo
+. make sure you have Java 7+, Scala 2.11 and SBT (the last two can be installed _very_ easily on OS X with http://brew.sh/[Homebrew^])
+. simply run `sbt stage` and a directory with all the needed files will be generated under `./target/universal/stage` (thanks http://www.scala-sbt.org/sbt-native-packager/[SBT Native Packager^] !)
+. then run the shell script under the `bin/` directory
+
+== Usage
+
+----
+org.ozb.google.oauth2 0.1 : Google OAuth2 command-line utils
+Usage: org.ozb.google.oauth2 [GetTokenResponse|RefreshAccessToken] [options]
+
+  --help
+        prints this usage text
+  --clientId <value>
+        clientId
+  --clientSecret <value>
+        clientSecret
+  --clientSecretJson <value>
+        clientSecret JSON file path
+  --redirectUri <value>
+        redirectUri (by default 'urn:ietf:wg:oauth:2.0:oob')
+Command: GetTokenResponse [options]
+	Get OAuth2 authorization token (access token and refresh token)
+  --scopes <value>
+        scopes (e.g."https://spreadsheets.google.com/feeds")
+Command: RefreshAccessToken [options]
+	Refresh access token
+  --refreshToken <value>
+----
+
+Upon successful invocation, the token response will be printed out at the console. +
+The _refresh token_ should be stored in long-term storage to request a new _access token_ when it's no longer valid.
+
+=== Client ID & secret
+
+You can specify the _clientId_ and the _clientSecret_ in three ways:
+
+. either by passing them in the command line
+	
+	--clientId xxxx --clientSecret yyyy ...
+
+. or by specifying the _clientSecrets.json_ file (downloaded from the https://console.developers.google.com/[Google Developers Console^])
+
+	--clientSecretJson path/to/client_secret.json ...
+
+. or finally, by entering them directly in the terminal if no _clientId_/_clientSecret_/_clientSecretJson_ option is passed in the command-line
+
+=== Examples
+
+.Generate an access and refresh token for the spreadsheets API
+	ozb-google-oauth2-utils GetTokenResponse --clientSecretJson /path/to/yours/client_secret.json --scopes https://spreadsheets.google.com/feeds
+
+.Refresh the access token
+	ozb-google-oauth2-utils RefreshAccessToken --clientSecretJson /path/to/yours/client_secret.json
+
+In this case, the refresh token will be asked at the console (but you can pass it on the command-line)
+
+
